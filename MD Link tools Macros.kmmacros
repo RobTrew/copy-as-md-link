@@ -9339,145 +9339,11 @@
 						<key>Path</key>
 						<string></string>
 						<key>Text</key>
-						<string>(() =&gt; {
-    'use strict';
-
-    // main :: IO ()
-    const main = () =&gt; {
-        const
-            se = Object.assign(
-                Application('System Events'), {
-                    includeStandardAdditions: true
-                }
-            ),
-            procs = se.applicationProcesses.where({
-                name: 'Nova'
-            })
-        return either(
-            alert('Copy as MD link')
-        )(
-            mdLink =&gt; (
-                Application(
-                    'Keyboard Maestro Engine'
-                ).setvariable('mdLink', {
-                    to: mdLink
-                }),
-                mdLink
-            )
-        )(
-            bindLR(
-                0 &lt; procs.length ? (
-                    Right(procs.at(0).windows)
-                ) : Left('Nova not running.')
-            )(wins =&gt; bindLR(
-                0 &lt; wins.length ? (
-                    Right(
-                        wins.at(0)
-                        .splitterGroups.at(0)
-                        .splitterGroups.at(0)
-                        .splitterGroups.at(0)
-                        .groups.at(0)
-                    )
-                ) : Left('No windows open in Nova.')
-            )(group =&gt; {
-                const lists = group.lists;
-                return 0 &lt; group.lists.length ? (
-                    bindLR(
-                        Right(lists.at(0))
-                    )(parts =&gt; {
-                        const
-                            xs = init(
-                                parts.staticTexts()
-                                .map(x =&gt; x.name())
-                            ),
-                            fp = encodeURI(
-                                'file:///Users/' + (
-                                    xs.join('/')
-                                )
-                            );
-                        return Right(`[${last(xs)}](${fp})`);
-                    })
-                ) : Left('Editor &gt; Show Path Bar not chosen.');
-            }))
-        );
-    };
-
-    // ----------------------- JXA -----------------------
-
-    // alert :: String -&gt; String -&gt; IO String
-    const alert = title =&gt;
-        s =&gt; {
-            const sa = Object.assign(
-                Application('System Events'), {
-                    includeStandardAdditions: true
-                });
-            return (
-                sa.activate(),
-                sa.displayDialog(s, {
-                    withTitle: title,
-                    buttons: ['OK'],
-                    defaultButton: 'OK'
-                }),
-                s
-            );
-        };
-
-    // --------------------- GENERIC ---------------------
-    // Left :: a -&gt; Either a b
-    const Left = x =&gt; ({
-        type: 'Either',
-        Left: x
-    });
-
-    // Right :: b -&gt; Either a b
-    const Right = x =&gt; ({
-        type: 'Either',
-        Right: x
-    });
-
-    // bindLR (&gt;&gt;=) :: Either a -&gt; 
-    // (a -&gt; Either b) -&gt; Either b
-    const bindLR = m =&gt;
-        mf =&gt; undefined !== m.Left ? (
-            m
-        ) : mf(m.Right);
-
-    // either :: (a -&gt; c) -&gt; (b -&gt; c) -&gt; Either a b -&gt; c
-    const either = fl =&gt;
-        // Application of the function fl to the
-        // contents of any Left value in e, or
-        // the application of fr to its Right value.
-        fr =&gt; e =&gt; 'Either' === e.type ? (
-            undefined !== e.Left ? (
-                fl(e.Left)
-            ) : fr(e.Right)
-        ) : undefined;
-
-    // init :: [a] -&gt; [a]
-    const init = xs =&gt; (
-        // All elements of a list except the last.
-        ys =&gt; 0 &lt; ys.length ? (
-            ys.slice(0, -1)
-        ) : undefined
-    )(list(xs));
-
-    // last :: [a] -&gt; a
-    const last = xs =&gt;
-        // The last item of a list.
-        0 &lt; xs.length ? (
-            xs.slice(-1)[0]
-        ) : undefined;
-
-    // list :: StringOrArrayLike b =&gt; b -&gt; [a]
-    const list = xs =&gt;
-        // xs itself, if it is an Array,
-        // or an Array derived from xs.
-        Array.isArray(xs) ? (
-            xs
-        ) : Array.from(xs || []);
-
-    return main();
-})();</string>
+						<string>var $jscomp=$jscomp||{};$jscomp.scope={};$jscomp.createTemplateTagFirstArg=function(d){return d.raw=d};$jscomp.createTemplateTagFirstArgWithRaw=function(d,e){d.raw=e;return d};
+(function(){var d=function(a){return function(b){var c=Object.assign(Application("System Events"),{includeStandardAdditions:!0});return c.activate(),c.displayDialog(b,{withTitle:a,buttons:["OK"],defaultButton:"OK"}),b}},e=function(a){return{type:"Either",Left:a}},g=function(a){return{type:"Either",Right:a}},h=function(a){return function(b){return void 0!==a.Left?a:b(a.Right)}},k=function(a){return function(b){return function(c){return"Either"===c.type?void 0!==c.Left?a(c.Left):b(c.Right):void 0}}},
+l=function(a){a=Array.isArray(a)?a:Array.from(a||[]);return 0&lt;a.length?a.slice(0,-1):void 0};return function(){var a=Object.assign(Application("System Events"),{includeStandardAdditions:!0}).applicationProcesses.where({name:"Nova"});return k(d("Copy as MD link"))(function(b){return Application("Keyboard Maestro Engine").setvariable("mdLink",{to:b}),b})(h(0&lt;a.length?g(a.at(0).windows):e("Nova not running."))(function(b){return h(0&lt;b.length?g(b.at(0).splitterGroups.at(0).splitterGroups.at(0).splitterGroups.at(0).groups.at(0)):
+e("No windows open in Nova."))(function(c){var m=c.lists;return 0&lt;c.lists.length?h(g(m.at(0)))(function(f){f=l(f.staticTexts().map(function(n){return n.name()}));var p=encodeURI("file:///Users/"+f.join("/"));return g("["+(0&lt;f.length?f.slice(-1)[0]:void 0)+"]("+p+")")}):e("Editor &gt; Show Path Bar not chosen.")})}))}()})();
+</string>
 						<key>TimeOutAbortsMacro</key>
 						<true/>
 						<key>TrimResults</key>
@@ -9491,7 +9357,7 @@
 				<key>CreationDate</key>
 				<real>633698454.90628695</real>
 				<key>ModificationDate</key>
-				<real>633698873.92759097</real>
+				<real>633700281.50065506</real>
 				<key>Name</key>
 				<string>com.panic.Nova</string>
 				<key>Triggers</key>
