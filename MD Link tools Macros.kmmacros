@@ -8269,11 +8269,14 @@ e("No windows open in Nova."))(function(c){var m=c.lists;return 0&lt;c.lists.len
                         const
                             pageCount = record.pageCount(),
                             page = window.currentPage(),
-                            pageString = -1 !== page ? (
+                            hasPage = -1 !== page,
+                            pageString = hasPage ? (
                                 `?page=${page}`
                             ) : '',
                             title = record.name() + (
-                                ` p${page} of ${pageCount}`
+                                hasPage ? (
+                                    ` p${page} of ${pageCount}`
+                                ) : ''
                             );
                         return Right(
                             `[${title}]` + (
@@ -8373,7 +8376,7 @@ e("No windows open in Nova."))(function(c){var m=c.lists;return 0&lt;c.lists.len
 				<key>CreationDate</key>
 				<real>620239734.951316</real>
 				<key>ModificationDate</key>
-				<real>633947622.20713699</real>
+				<real>633948712.50211</real>
 				<key>Name</key>
 				<string>com.devon-technologies.think3</string>
 				<key>Triggers</key>
