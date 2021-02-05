@@ -18,12 +18,14 @@ Application-specific sub-macros extending the main `Copy as Markdown Link` macro
 - com.happenapps.Quiver
 - com.houdah.HoudahSpot4
 - com.literatureandlatte.scrivener3
+- com.lukilabs.lukiapp
 - com.multimarkdown.nvUltra
 - com.OakTree.Accordance
 - com.omnigroup.OmniFocus3
 - com.omnigroup.OmniFocus3.MacAppStore
 - com.omnigroup.OmniPlan3
 - com.omnigroup.OmniPlan4
+- com.panic.Nova
 - com.panic.Transmit
 - com.panic.transmit.mas
 - com.reederapp.5.macOS
