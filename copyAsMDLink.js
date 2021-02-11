@@ -4,7 +4,7 @@
     // Rob Trew @ 2020
 
     // Copy Markdown Link to front document, URL, or resource.
-    // Ver 0.08
+    // Ver 0.09
 
     // Switched to running app-specific macros by UUID
     // fetched from a JSON dictionary stored in a 
@@ -183,28 +183,6 @@
     };
 
 
-    // ------------ BUNDLE-SPECIFIC KM MACROS ------------
-
-    // kmMacroByGroupAndNameLR :: KMGroup -> String ->
-    // Either String KMMacro
-    const kmMacroByGroupAndNameLR = group =>
-        // Either a message, if no macro of the given 
-        // name is found in the referenced group,
-        // or a reference to a macro.
-        macroName => {
-            const
-                ms = group.macros.where({
-                    name: macroName
-                });
-            return 0 < ms.length ? (
-                Right(ms.at(0))
-            ) : Left(
-                'No KM macro found by name: ' + (
-                    macroName
-                ) + '\nin group ' + group.name()
-            );
-        };
-
     // --------------------- BROWSERS ----------------------
 
     // browserLinkLR :: String -> Either String IO String
@@ -306,16 +284,6 @@
             );
         };
 
-    // clipboardText :: IO () -> String
-    const clipboardText = () =>
-        // Any plain text in the clipboard.
-        ObjC.unwrap(
-            $.NSString.alloc.initWithDataEncoding(
-                $.NSPasteboard.generalPasteboard
-                .dataForType($.NSPasteboardTypeString),
-                $.NSUTF8StringEncoding
-            )
-        );
 
     // copyText :: String -> IO String
     const copyText = s => {
@@ -355,16 +323,6 @@
         ) : mf(m.Right);
 
 
-    // compose (<<<) :: (b -> c) -> (a -> b) -> a -> c
-    const compose = (...fs) =>
-        // A function defined by the right-to-left
-        // composition of all the functions in fs.
-        fs.reduce(
-            (f, g) => x => f(g(x)),
-            x => x
-        );
-
-
     // either :: (a -> c) -> (b -> c) -> Either a b -> c
     const either = fl =>
         // Application of the function fl to the
@@ -375,12 +333,6 @@
                 fl(e.Left)
             ) : fr(e.Right)
         ) : undefined;
-
-
-    // identity :: a -> a
-    const identity = x =>
-        // The identity function.
-        x;
 
 
     // jsonParseLR :: String -> Either String a
@@ -403,27 +355,6 @@
         // to each element of xs.
         // (The image of xs under f).
         xs => xs.map(f);
-
-
-    // showLog :: a -> IO ()
-    const showLog = (...args) =>
-        console.log(
-            args
-            .map(JSON.stringify)
-            .join(' -> ')
-        );
-
-
-    // sj :: a -> String
-    function sj() {
-        const args = Array.from(arguments);
-        return JSON.stringify.apply(
-            null,
-            1 < args.length && !isNaN(args[0]) ? [
-                args[1], null, args[0]
-            ] : [args[0], null, 2]
-        );
-    }
 
     // MAIN ---
     return main();
