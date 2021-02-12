@@ -4,12 +4,12 @@
     // Rob Trew @ 2020
 
     // Copy Markdown Link to front document, URL, or resource.
-    // Ver 0.09
+    // Ver 0.10
 
     // Switched to running app-specific macros by UUID
     // fetched from a JSON dictionary stored in a 
     // uuidsForMDLink KM variable.
-    
+
     // If this variable is not found, or a UUID retrieved
     // from it is not found, then the dictionary is regenerated.
 
@@ -35,10 +35,7 @@
                 msg
             )
         )(
-            mdLink => (
-                copyText(mdLink),
-                mdLink
-            )
+            mdLink => mdLink
         )(
             bindLR(
                 void 0 !== bundleID ? (
@@ -68,12 +65,7 @@
                             )(
                                 // UUID dictionary from existing
                                 // KM Variable
-                                dct => (
-                                    console.log(
-                                        'BundleID map found.'
-                                    ),
-                                    dct
-                                )
+                                dct => dct
                             )(
                                 jsonParseLR(
                                     kme.getvariable('uuidsForMDLink')
@@ -86,7 +78,6 @@
                                 // then run a new one from an 
                                 // updated dictionary.
                                 msg => (
-                                    console.log(msg),
                                     bindLR(
                                         doScriptLR(kme)(
                                             updatedUUIDMap()[bundleID]
@@ -284,19 +275,6 @@
             );
         };
 
-
-    // copyText :: String -> IO String
-    const copyText = s => {
-        const pb = $.NSPasteboard.generalPasteboard;
-        return (
-            pb.clearContents,
-            pb.setStringForType(
-                $(s),
-                $.NSPasteboardTypeString
-            ),
-            s
-        );
-    };
 
     // ----------------- GENERIC FUNCTIONS -----------------
     // https://github.com/RobTrew/prelude-jxa
