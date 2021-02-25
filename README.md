@@ -16,6 +16,7 @@ Application-specific sub-macros extending the main `Copy as Markdown Link` macro
 - com.devon-technologies.think3
 - com.flexibits.fantastical2.mac
 - com.happenapps.Quiver
+- com.houdah.HoudahSpot-setapp
 - com.houdah.HoudahSpot4
 - com.literatureandlatte.scrivener3
 - com.lukilabs.lukiapp
