@@ -27,7 +27,7 @@
                 either(x => x)(x => x)(
                     rtfFromHTML(
                         // The url field is not empty ?
-                        0 !== kv[1].length ? (
+                        Boolean(kv[1]) ? (
                             `<a href="${kv[1]}">` + (
                                 `${label}</a>`
                             )
