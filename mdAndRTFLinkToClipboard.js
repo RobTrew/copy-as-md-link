@@ -42,20 +42,20 @@
 
     // ---------------------- LINKS ----------------------
 
-    // copyTypedString :: Bool -> String -> String -> IO ()
-    const copyTypedString = blnClear =>
-        // public.html, public.rtf, public.utf8-plain-text
-        pbType => s => {
-            const pb = $.NSPasteboard.generalPasteboard;
+// copyTypedString :: Bool -> String -> String -> IO ()
+const copyTypedString = blnClear =>
+    // public.html, public.rtf, public.utf8-plain-text
+    pbType => s => {
+        const pb = $.NSPasteboard.generalPasteboard;
 
-            return (
-                blnClear && pb.clearContents,
-                pb.setStringForType(
-                    $(s),
-                    $(pbType)
-                )
-            );
-        };
+        return (
+            blnClear && pb.clearContents,
+            pb.setStringForType(
+                $(s),
+                $(pbType)
+            )
+        );
+    };
 
 
     // htmlEncoded :: String -> String
@@ -82,49 +82,49 @@
     };
 
 
-    // rtfFromHTML :: String -> Either String String
-    const rtfFromHTML = strHTML => {
-        const
-            as = $.NSAttributedString.alloc
-            .initWithHTMLDocumentAttributes($(strHTML)
-                .dataUsingEncoding($.NSUTF8StringEncoding),
-                0
-            );
-
-        return bindLR(
-            "function" !== typeof as
-            .dataFromRangeDocumentAttributesError ? (
-                Left("String could not be parsed as HTML")
-            ) : Right(as)
-        )(
-            // Function bound if Right value obtained above:
-            htmlAS => {
-                const
-                    error = $(),
-                    rtfData = htmlAS
-                    .dataFromRangeDocumentAttributesError({
-                            "location": 0,
-                            "length": htmlAS.length
-                        }, {
-                            DocumentType: "NSRTF"
-                        },
-                        error
-                    );
-
-                return Boolean(
-                    ObjC.unwrap(rtfData) && !error.code
-                ) ? Right(
-                    ObjC.unwrap($.NSString.alloc
-                        .initWithDataEncoding(
-                            rtfData,
-                            $.NSUTF8StringEncoding
-                        ))
-                ) : Left(ObjC.unwrap(
-                    error.localizedDescription
-                ));
-            }
+// rtfFromHTML :: String -> Either String String
+const rtfFromHTML = strHTML => {
+    const
+        as = $.NSAttributedString.alloc
+        .initWithHTMLDocumentAttributes($(strHTML)
+            .dataUsingEncoding($.NSUTF8StringEncoding),
+            0
         );
-    };
+
+    return bindLR(
+        "function" !== typeof as
+        .dataFromRangeDocumentAttributesError ? (
+            Left("String could not be parsed as HTML")
+        ) : Right(as)
+    )(
+        // Function bound if Right value obtained above:
+        htmlAS => {
+            const
+                error = $(),
+                rtfData = htmlAS
+                .dataFromRangeDocumentAttributesError({
+                        "location": 0,
+                        "length": htmlAS.length
+                    }, {
+                        DocumentType: "NSRTF"
+                    },
+                    error
+                );
+
+            return Boolean(
+                ObjC.unwrap(rtfData) && !error.code
+            ) ? Right(
+                ObjC.unwrap($.NSString.alloc
+                    .initWithDataEncoding(
+                        rtfData,
+                        $.NSUTF8StringEncoding
+                    ))
+            ) : Left(ObjC.unwrap(
+                error.localizedDescription
+            ));
+        }
+    );
+};
 
 
     // --------------------- GENERIC ---------------------
