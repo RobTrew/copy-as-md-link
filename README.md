@@ -32,6 +32,7 @@ Application-specific sub-macros extending the main `Copy as Markdown Link` macro
 - com.reederapp.5.macOS
 - com.reederapp.macOS
 - com.sonnysoftware.bookends
+- com.sonnysoftware.bookends2
 - com.soulmen.ulysses-setapp
 - com.spotify.client
 - com.stairways.keyboardmaestro.editor
