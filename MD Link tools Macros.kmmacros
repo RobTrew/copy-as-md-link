@@ -1936,7 +1936,7 @@
 								<key>Subtitle</key>
 								<string></string>
 								<key>Text</key>
-								<string>%Variable%orgLink%</string>
+								<string>%Variable%orgLinks%</string>
 								<key>Title</key>
 								<string>%ExecutingMacro%</string>
 							</dict>
@@ -2296,7 +2296,7 @@
 				8yYAAAeSAAD9kf//+6L///2jAAAD3AAAwGw=
 				</data>
 				<key>ModificationDate</key>
-				<real>654873150.29361403</real>
+				<real>654873375.84748995</real>
 				<key>Name</key>
 				<string>Copy as OrgMode link</string>
 				<key>Triggers</key>
