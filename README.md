@@ -3,7 +3,7 @@ macOS Keyboard Maestro macro group – single keystroke to copy MD links from di
 
 See: `[Copy as Markdown Link]`(https://forum.keyboardmaestro.com/t/copy-as-markdown-link/20442) on the Keyboard Maestro forum.
 
-Application-specific sub-macros extending the main `Copy as Markdown Link` macro beyond the scope of document windows:
+Application-specific sub-macros extending the main `Copy as Markdown Link` macro beyond the scope of browsers and document windows:
 
 - app.soulver.mac
 - com.agiletortoise.Drafts-OSX
@@ -24,6 +24,7 @@ Application-specific sub-macros extending the main `Copy as Markdown Link` macro
 - com.OakTree.Accordance
 - com.omnigroup.OmniFocus3
 - com.omnigroup.OmniFocus3.MacAppStore
+- com.omnigroup.OmniOutliner5
 - com.omnigroup.OmniPlan3
 - com.omnigroup.OmniPlan4
 - com.panic.Nova
