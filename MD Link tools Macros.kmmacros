@@ -12799,8 +12799,10 @@ e("No windows open in Nova."))(function(c){var m=c.lists;return 0&lt;c.lists.len
 						<string>mdLink</string>
 					</dict>
 					<dict>
+						<key>ActionName</key>
+						<string>From front application and selection to mdLink string value</string>
 						<key>ActionUID</key>
-						<integer>434</integer>
+						<integer>4447</integer>
 						<key>DisplayKind</key>
 						<string>Variable</string>
 						<key>HonourFailureSettings</key>
@@ -12864,12 +12866,16 @@ e("No windows open in Nova."))(function(c){var m=c.lists;return 0&lt;c.lists.len
     };
 
     // linkForBundleLR :: String -&gt; Either String String
-    const linkForBundleLR = bundleID =&gt; {
+    const linkForBundleLR = bundleID =&gt;
         // ------------ BROWSER ? ------------
-        const fnBrowser = browserCode()[bundleID];
 
-        return Boolean(fnBrowser) ? (
-            fnBrowser(bundleID)
+        [
+            "com.apple.Safari",
+            "com.google.Chrome",
+            "com.microsoft.edgemac",
+            "com.vivaldi.Vivaldi"
+        ].includes(bundleID) ? (
+            browserLinkLR(bundleID)
         ) : (() =&gt; {
             // ---- APP-SPECIFIC MACRO ? -----
             const
@@ -12898,7 +12904,6 @@ e("No windows open in Nova."))(function(c){var m=c.lists;return 0&lt;c.lists.len
                 dctUUID[bundleID]
             );
         })();
-    };
 
     // linkFromUUID :: Application -&gt;
     // String -&gt; String -&gt; String
@@ -12929,10 +12934,6 @@ e("No windows open in Nova."))(function(c){var m=c.lists;return 0&lt;c.lists.len
             )
         ) : appFrontWindowMDLinkLR(bundleID);
 
-    const browserCode = () =&gt; ({
-        "com.apple.Safari": browserLinkLR,
-        "com.google.Chrome": browserLinkLR
-    });
 
     // doScriptLR :: UUID -&gt; Either String String
     const doScriptLR = kme =&gt;
@@ -13073,9 +13074,12 @@ e("No windows open in Nova."))(function(c){var m=c.lists;return 0&lt;c.lists.len
         )(w =&gt; {
             const
                 uw = ObjC.unwrap,
-                [winTitle, maybeDocURL] = map(
-                    appID =&gt; uw(w.attributes.byName(appID).value())
-                )(["AXTitle", "AXDocument"]);
+                [winTitle, maybeDocURL] = [
+                    "AXTitle", "AXDocument"
+                ]
+                .map(appID =&gt; uw(
+                    w.attributes.byName(appID).value()
+                ));
 
             return Boolean(maybeDocURL) ? (
                 Right(`[${winTitle}](${maybeDocURL})`)
@@ -13164,14 +13168,6 @@ e("No windows open in Nova."))(function(c){var m=c.lists;return 0&lt;c.lists.len
         }
     };
 
-
-    // map :: (a -&gt; b) -&gt; [a] -&gt; [b]
-    const map = f =&gt;
-        // The list obtained by applying f
-        // to each element of xs.
-        // (The image of xs under f).
-        xs =&gt; xs.map(f);
-
     // MAIN ---
     return main();
 })();</string>
@@ -13185,18 +13181,6 @@ e("No windows open in Nova."))(function(c){var m=c.lists;return 0&lt;c.lists.len
 						<true/>
 						<key>Variable</key>
 						<string>mdLink</string>
-					</dict>
-					<dict>
-						<key>ActionUID</key>
-						<integer>435</integer>
-						<key>IsActive</key>
-						<false/>
-						<key>JustDisplay</key>
-						<false/>
-						<key>MacroActionType</key>
-						<string>SetClipboardToText</string>
-						<key>Text</key>
-						<string>%Variable%mdLink%</string>
 					</dict>
 					<dict>
 						<key>ActionName</key>
@@ -13727,7 +13711,7 @@ e("No windows open in Nova."))(function(c){var m=c.lists;return 0&lt;c.lists.len
 				8yYAAAeSAAD9kf//+6L///2jAAAD3AAAwGw=
 				</data>
 				<key>ModificationDate</key>
-				<real>654873375.84748995</real>
+				<real>654956987.86492896</real>
 				<key>Name</key>
 				<string>Copy as OrgMode link</string>
 				<key>Triggers</key>
