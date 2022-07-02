@@ -1,37 +1,39 @@
 (() => {
-    'use strict';
+    "use strict";
 
     // Rob Trew @ 2020
 
     // Copy Markdown Link to front document, URL, or resource.
-    // Ver 0.10
+    // Ver 0.30
 
     // Switched to running app-specific macros by UUID
-    // fetched from a JSON dictionary stored in a 
+    // fetched from a JSON dictionary stored in a
     // uuidsForMDLink KM variable.
 
     // If this variable is not found, or a UUID retrieved
     // from it is not found, then the dictionary is regenerated.
 
     // The regeneration, which will happen on the first
-    // run, but should only be needed thereafter when 
+    // run, but should only be needed thereafter when
     // new sub-macros are added, will activate Keyboard Maestro.app
 
     // Normally use of the macro will, however, normally
-    // bypass Keyboard Maestro.app and run through 
+    // bypass Keyboard Maestro.app and run through
     // Keyboard Maestro Engine instead.
 
-    ObjC.import('AppKit');
+    ObjC.import("AppKit");
 
-    const kmGroupName = 'MD link tools';
+    const kmGroupName = "MD link tools";
 
     // ---------------------- MAIN -----------------------
     // main :: IO ()
+    // eslint-disable-next-line max-lines-per-function
     const main = () => {
         const bundleID = frontAppBundleId();
+
         return either(
             msg => (
-                alert('Copy as Markdown link')(msg),
+                alert("Copy as Markdown link")(msg),
                 msg
             )
         )(
@@ -41,70 +43,80 @@
                 void 0 !== bundleID ? (
                     Right(bundleID)
                 ) : Left(
-                    'No active application detected'
+                    "No active application detected"
                 )
-            )(
-                bundleID => {
-                    // ------------ BROWSER ? ------------
-                    const fnBrowser = browserCode()[bundleID];
-                    return Boolean(fnBrowser) ? (
-                        fnBrowser(bundleID)
-                    ) : (() => {
-                        // ---- APP-SPECIFIC MACRO ? -----
-                        const
-                            kme = Application('Keyboard Maestro Engine'),
-                            dctUUID = either(
-                                msg => (
-                                    console.log(
-                                        'BundleID map had to be regenerated',
-                                        msg
-                                    ),
-                                    // Regenerated UUID dictionary
-                                    updatedUUIDMap()
-                                )
-                            )(
-                                // UUID dictionary from existing
-                                // KM Variable
-                                dct => dct
-                            )(
-                                jsonParseLR(
-                                    kme.getvariable('uuidsForMDLink')
-                                )
-                            ),
-                            maybeUUID = dctUUID[bundleID];
-                        return Boolean(maybeUUID) ? (
-                            either(
-                                // If the UUID wasn't found,
-                                // then run a new one from an 
-                                // updated dictionary.
-                                msg => (
-                                    bindLR(
-                                        doScriptLR(kme)(
-                                            updatedUUIDMap()[bundleID]
-                                        )
-                                    )(
-                                        // Link after use of alternate UUID
-                                        _ => Right(kme.getvariable('mdLink'))
-                                    )
-                                )
-                            )(
-                                // Link read after execution with UUID
-                                _ => Right(kme.getvariable('mdLink'))
-                            )(
-                                // Run macro with this UUID if possible.
-                                doScriptLR(kme)(maybeUUID)
-                            )
-                        ) : appFrontWindowMDLinkLR(bundleID);
-                    })();
-                }
-            )
+            )(linkForBundleLR)
         );
     };
 
-    const browserCode = () => ({
-        'com.apple.Safari': browserLinkLR,
-        'com.google.Chrome': browserLinkLR
-    });
+    // linkForBundleLR :: String -> Either String String
+    const linkForBundleLR = bundleID =>
+        // ------------ BROWSER ? ------------
+
+        [
+            "com.apple.Safari",
+            "com.google.Chrome",
+            "com.microsoft.edgemac",
+            "com.vivaldi.Vivaldi"
+        ].includes(bundleID) ? (
+            browserLinkLR(bundleID)
+        ) : (() => {
+            // ---- APP-SPECIFIC MACRO ? -----
+            const
+                kme = Application("Keyboard Maestro Engine"),
+                dctUUID = either(
+                    msg => (
+                        // eslint-disable-next-line no-console
+                        console.log(
+                            "BundleID map had to be regenerated",
+                            msg
+                        ),
+                        // Regenerated UUID dictionary
+                        updatedUUIDMap()
+                    )
+                )(
+                    // UUID dictionary from existing
+                    // KM Variable
+                    dct => dct
+                )(
+                    jsonParseLR(
+                        kme.getvariable("uuidsForMDLink")
+                    )
+                );
+
+            return linkFromUUID(kme)(bundleID)(
+                dctUUID[bundleID]
+            );
+        })();
+
+    // linkFromUUID :: Application ->
+    // String -> String -> String
+    const linkFromUUID = kme =>
+        bundleID => maybeUUID => Boolean(maybeUUID) ? (
+            either(
+                // If the UUID wasn"t found,
+                // then run a new one from an
+                // updated dictionary.
+                () => (
+                    bindLR(
+                        doScriptLR(kme)(
+                            updatedUUIDMap()[bundleID]
+                        )
+                    )(
+                        // Link after use of alternate UUID
+                        () => Right(
+                            kme.getvariable("mdLink")
+                        )
+                    )
+                )
+            )(
+                // Link read after  with UUID
+                () => Right(kme.getvariable("mdLink"))
+            )(
+                // Run macro with this UUID if possible.
+                doScriptLR(kme)(maybeUUID)
+            )
+        ) : appFrontWindowMDLinkLR(bundleID);
 
 
     // doScriptLR :: UUID -> Either String String
@@ -127,18 +139,19 @@
     // updatedUUIDMap :: IO () -> { bundleID :: UUID }
     const updatedUUIDMap = () => {
         const
-            macroGroupName = 'MD Link tools',
+            macroGroupName = "MD Link tools",
             mdLinkToolsGroups = Application(
-                'Keyboard Maestro'
+                "Keyboard Maestro"
             ).macroGroups.where({
                 name: macroGroupName
             });
+
         return either(
-            alert('Copy as MD Link - Map bundle to UUID')
+            alert("Copy as MD Link - Map bundle to UUID")
         )(
             dictUUIDs => (
-                Application('Keyboard Maestro Engine')
-                .setvariable('uuidsForMDLink', {
+                Application("Keyboard Maestro Engine")
+                .setvariable("uuidsForMDLink", {
                     to: JSON.stringify(
                         dictUUIDs, null, 2
                     )
@@ -152,12 +165,14 @@
                     .macros()
                     .flatMap(macro => {
                         const k = macro.name();
-                        return k.includes('.') ? (
+
+                        return k.includes(".") ? (
                             [
                                 [k, macro.id()]
                             ]
                         ) : [];
                     });
+
                 return Right(
                     instances.reduce(
                         (a, [bundle, uuid]) => Object.assign(
@@ -181,25 +196,28 @@
         const
             app = Application(bundleID),
             ws = app.windows;
+
         return bindLR(
             0 < ws.length ? (
                 Right(ws.at(0))
-            ) : Left('No windows open in ' + bundleID)
+            ) : Left(`No windows open in ${bundleID}`)
         )(
             w => {
                 const tabs = w.tabs;
+
                 return 0 < tabs.length ? (() => {
                     const
                         tab = w[
-                            'com.apple.Safari' === bundleID ? (
-                                'currentTab'
-                            ) : 'activeTab'
+                            "com.apple.Safari" === bundleID ? (
+                                "currentTab"
+                            ) : "activeTab"
                         ]();
+
                     return Right(
                         `[${tab.name()}](${tab.url()})`
                     );
                 })() : Left(
-                    'No open tabs in front window of ' + bundleID
+                    `No open tabs in front window of ${bundleID}`
                 );
             }
         );
@@ -210,6 +228,7 @@
     // frontAppBundleId :: () -> String
     const frontAppBundleId = () => {
         const uw = ObjC.unwrap;
+
         return uw(uw(
             $.NSWorkspace.sharedWorkspace.activeApplication
         ).NSApplicationBundleIdentifier);
@@ -221,38 +240,44 @@
     const appFrontWindowMDLinkLR = bundleID => {
         const
             procs = Object.assign(
-                Application('System Events'), {
+                Application("System Events"), {
                     includeStandardAdditions: true
                 })
             .applicationProcesses.where({
                 bundleIdentifier: bundleID
             });
+
         return bindLR(
             bindLR(
                 procs.length > 0 ? (
                     Right(procs.at(0).windows)
-                ) : Left('Application not found: ' + bundleID)
+                ) : Left(`Application not found: ${bundleID}`)
             )(ws => ws.length > 0 ? (
                 Right(ws.at(0))
             ) : Left(`No windows found for ${bundleID}`))
         )(w => {
             const
                 uw = ObjC.unwrap,
-                [winTitle, maybeDocURL] = map(
-                    bundleID => uw(w.attributes.byName(bundleID).value())
-                )(['AXTitle', 'AXDocument']);
+                [winTitle, maybeDocURL] = [
+                    "AXTitle", "AXDocument"
+                ]
+                .map(appID => uw(
+                    w.attributes.byName(appID).value()
+                ));
+
             return Boolean(maybeDocURL) ? (
                 Right(`[${winTitle}](${maybeDocURL})`)
             ) : Left(
-                `Window '${winTitle}' of:\n\n\t${bundleID}` + [
-                    '\n\nmay not be a document window.',
-                    `\nConsider adding a macro named '${bundleID}'`,
-                    `to the KM Group '${kmGroupName}'.`,
-                    '\n(Or request such a macro, which should',
-                    'save a [label](url) string) in the',
-                    'KM variable "mdLink")',
-                    `on the Keyboard Maestro forum).`
-                ].join('\n')
+                [
+                    `Window "${winTitle}" of:\n\n\t${bundleID}`,
+                    "\nmay not be a document window.",
+                    `\nConsider adding a macro named "${bundleID}"`,
+                    `to the KM Group "${kmGroupName}".`,
+                    "\n(Or request such a macro, which should",
+                    "save a [label](url) string) in the",
+                    "KM variable \"mdLink\")",
+                    "on the Keyboard Maestro forum)."
+                ].join("\n")
             );
         });
     };
@@ -261,15 +286,16 @@
     const alert = title =>
         s => {
             const sa = Object.assign(
-                Application('System Events'), {
+                Application("System Events"), {
                     includeStandardAdditions: true
                 });
+
             return (
                 sa.activate(),
                 sa.displayDialog(s, {
                     withTitle: title,
-                    buttons: ['OK'],
-                    defaultButton: 'OK'
+                    buttons: ["OK"],
+                    defaultButton: "OK"
                 }),
                 s
             );
@@ -281,14 +307,14 @@
 
     // Left :: a -> Either a b
     const Left = x => ({
-        type: 'Either',
+        type: "Either",
         Left: x
     });
 
 
     // Right :: b -> Either a b
     const Right = x => ({
-        type: 'Either',
+        type: "Either",
         Right: x
     });
 
@@ -306,7 +332,7 @@
         // Application of the function fl to the
         // contents of any Left value in e, or
         // the application of fr to its Right value.
-        fr => e => 'Either' === e.type ? (
+        fr => e => "Either" === e.type ? (
             undefined !== e.Left ? (
                 fl(e.Left)
             ) : fr(e.Right)
@@ -325,14 +351,6 @@
             );
         }
     };
-
-
-    // map :: (a -> b) -> [a] -> [b]
-    const map = f =>
-        // The list obtained by applying f
-        // to each element of xs.
-        // (The image of xs under f).
-        xs => xs.map(f);
 
     // MAIN ---
     return main();

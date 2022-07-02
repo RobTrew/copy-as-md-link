@@ -5,33 +5,37 @@
 
     // Value of KM mdLink variable placed in clipboard,
     // both as plain text,
-    // and also as a labelled RTF hyperlink.
+    // and also as a labelled (and styled) RTF hyperlink.
+
+    // Ver 0.2 added RTF link style options.
+    // Ver 0.3 updated link style font, size, color.
 
     ObjC.import("AppKit");
 
     // main :: IO ()
     const main = () => {
+        const linkStyle = {
+            "color": "#ACACAC",
+            "font-family": "Helvetica Neue, sans-serif",
+            "font-size": "13px"
+        };
+
         const
             md = Application("Keyboard Maestro Engine")
-            .getvariable("mdLink"),
-            kv = mdLinkParts(md),
-            label = htmlEncoded(kv[0]);
+            .getvariable("mdLink");
 
         return (
             copyTypedString(true)(
                 "public.utf8-plain-text"
             )(md),
-            copyTypedString(false)(
-                "public.rtf"
+            either(
+                alert("Copy as RTF Link")
             )(
-                either(x => x)(x => x)(
-                    rtfFromHTML(
-                        // The url field is not empty ?
-                        Boolean(kv[1]) ? (
-                            `<a href="${kv[1]}">` + (
-                                `${label}</a>`
-                            )
-                        ) : `<p>${label}</p>`
+                copyTypedString(false)("public.rtf")
+            )(
+                rtfFromHTML(
+                    styledLinks(linkStyle)(
+                        mdLinkPartPairs(md)
                     )
                 )
             ),
@@ -42,21 +46,31 @@
 
     // ---------------------- LINKS ----------------------
 
-// copyTypedString :: Bool -> String -> String -> IO ()
-const copyTypedString = blnClear =>
-    // public.html, public.rtf, public.utf8-plain-text
-    pbType => s => {
-        const pb = $.NSPasteboard.generalPasteboard;
+    // copyTypedString :: Bool -> String -> String -> IO ()
+    const copyTypedString = blnClear =>
+        // public.html, public.rtf, public.utf8-plain-text
+        pbType => s => {
+            const pb = $.NSPasteboard.generalPasteboard;
 
-        return (
-            blnClear && pb.clearContents,
-            pb.setStringForType(
-                $(s),
-                $(pbType)
-            )
-        );
+            return (
+                blnClear && pb.clearContents,
+                pb.setStringForType(
+                    $(s),
+                    $(pbType)
+                )
+            );
+        };
+
+    // cssTag :: Dict {String :: String} -> String
+    const cssTag = settings => {
+        const
+            kvs = Object.entries(settings)
+            .map(([k, v]) => `${k}: ${v};`)
+            .join(" "),
+            css = `p { ${kvs} }`;
+
+        return `<style type="text/css">${css}</style>`;
     };
-
 
     // htmlEncoded :: String -> String
     const htmlEncoded = s => {
@@ -70,62 +84,105 @@ const copyTypedString = blnClear =>
     };
 
 
-    // mdLinkParts :: String -> (String, String)
-    const mdLinkParts = s => {
-        const ab = s.trim().split("](");
+    // mdLinkPartPairs :: String -> [(String, String)]
+    const mdLinkPartPairs = s =>
+        lines(s).map(x => {
+            const ab = x.trim().split("](");
 
-        return 2 !== ab.length ? (
-            Tuple(s)("")
-        ) : Tuple(ab[0].slice(1))(
-            ab[1].slice(0, -1)
+            return 2 !== ab.length ? (
+                Tuple(s)("")
+            ) : Tuple(ab[0].slice(1))(
+                ab[1].slice(0, -1)
+            );
+        });
+
+
+    // rtfFromHTML :: String -> Either String String
+    const rtfFromHTML = strHTML => {
+        const
+            as = $.NSAttributedString.alloc
+            .initWithHTMLDocumentAttributes($(strHTML)
+                .dataUsingEncoding($.NSUTF8StringEncoding),
+                0
+            );
+
+        return bindLR(
+            "function" !== typeof as
+            .dataFromRangeDocumentAttributesError ? (
+                Left("String could not be parsed as HTML")
+            ) : Right(as)
+        )(
+            // Function bound if Right value obtained above:
+            htmlAS => {
+                const
+                    error = $(),
+                    rtfData = htmlAS
+                    .dataFromRangeDocumentAttributesError({
+                            "location": 0,
+                            "length": htmlAS.length
+                        }, {
+                            DocumentType: "NSRTF"
+                        },
+                        error
+                    );
+
+                return Boolean(
+                    ObjC.unwrap(rtfData) && !error.code
+                ) ? Right(
+                    ObjC.unwrap($.NSString.alloc
+                        .initWithDataEncoding(
+                            rtfData,
+                            $.NSUTF8StringEncoding
+                        ))
+                ) : Left(ObjC.unwrap(
+                    error.localizedDescription
+                ));
+            }
         );
     };
 
-
-// rtfFromHTML :: String -> Either String String
-const rtfFromHTML = strHTML => {
-    const
-        as = $.NSAttributedString.alloc
-        .initWithHTMLDocumentAttributes($(strHTML)
-            .dataUsingEncoding($.NSUTF8StringEncoding),
-            0
-        );
-
-    return bindLR(
-        "function" !== typeof as
-        .dataFromRangeDocumentAttributesError ? (
-            Left("String could not be parsed as HTML")
-        ) : Right(as)
-    )(
-        // Function bound if Right value obtained above:
-        htmlAS => {
+    // styledLinks :: Dict -> [(String, String)] -> String
+    const styledLinks = styleDict =>
+        // One or more <a href> lines, wrapped in <p>...</p>
+        // and preceded by a <style> tag based on styleDict.
+        kvs => {
             const
-                error = $(),
-                rtfData = htmlAS
-                .dataFromRangeDocumentAttributesError({
-                        "location": 0,
-                        "length": htmlAS.length
-                    }, {
-                        DocumentType: "NSRTF"
-                    },
-                    error
-                );
+                css = cssTag(styleDict),
+                linkTags = kvs.map(kv => {
+                    const [label, url] = biList(kv).map(
+                            htmlEncoded
+                        ),
+                        labelOrFullLink = Boolean(url) ? (
+                            `<a href="${url}">${label}</a>`
+                        ) : label;
 
-            return Boolean(
-                ObjC.unwrap(rtfData) && !error.code
-            ) ? Right(
-                ObjC.unwrap($.NSString.alloc
-                    .initWithDataEncoding(
-                        rtfData,
-                        $.NSUTF8StringEncoding
-                    ))
-            ) : Left(ObjC.unwrap(
-                error.localizedDescription
-            ));
-        }
-    );
-};
+                    return `${labelOrFullLink}`;
+                })
+                .join("<br>");
 
+            return `${css}\n<p>${linkTags}</p>`;
+        };
+
+    // ----------------------- JXA -----------------------
+
+    // alert :: String => String -> IO String
+    const alert = title =>
+        s => {
+            const sa = Object.assign(
+                Application("System Events"), {
+                    includeStandardAdditions: true
+                });
+
+            return (
+                sa.activate(),
+                sa.displayDialog(s, {
+                    withTitle: title,
+                    buttons: ["OK"],
+                    defaultButton: "OK"
+                }),
+                s
+            );
+        };
 
     // --------------------- GENERIC ---------------------
 
@@ -141,6 +198,20 @@ const rtfFromHTML = strHTML => {
         Right: x
     });
 
+    // Tuple (,) :: a -> b -> (a, b)
+    const Tuple = a =>
+        b => ({
+            type: "Tuple",
+            "0": a,
+            "1": b,
+            length: 2
+        });
+
+    // biList :: (a, a) -> [a]
+    const biList = ab =>
+        // A list of two items derived from a tuple.
+        Array.from(ab);
+
     // bindLR (>>=) :: Either a ->
     // (a -> Either b) -> Either b
     const bindLR = m =>
@@ -153,18 +224,18 @@ const rtfFromHTML = strHTML => {
         // Application of the function fl to the
         // contents of any Left value in e, or
         // the application of fr to its Right value.
-        fr => e => e.Left ? (
+        fr => e => "Left" in e ? (
             fl(e.Left)
         ) : fr(e.Right);
 
-    // Tuple (,) :: a -> b -> (a, b)
-    const Tuple = a =>
-        b => ({
-            type: "Tuple",
-            "0": a,
-            "1": b,
-            length: 2
-        });
+    // lines :: String -> [String]
+    const lines = s =>
+        // A list of strings derived from a single
+        // string delimited by newline and or CR.
+        0 < s.length ? (
+            s.split(/[\r\n]+/u)
+        ) : [];
+
 
     return main();
 })();
