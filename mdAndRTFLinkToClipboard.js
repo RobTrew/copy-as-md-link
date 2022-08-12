@@ -1,7 +1,7 @@
 (() => {
     "use strict";
 
-    // Rob Trew @2021
+    // Rob Trew @2021, @2022
 
     // Value of KM mdLink variable placed in clipboard,
     // both as plain text,
@@ -9,6 +9,7 @@
 
     // Ver 0.2 added RTF link style options.
     // Ver 0.3 updated link style font, size, color.
+    // Ver 0.4 added a pasteboard item for Bike Outliner
 
     ObjC.import("AppKit");
 
@@ -22,12 +23,18 @@
 
         const
             md = Application("Keyboard Maestro Engine")
-            .getvariable("mdLink");
+            .getvariable("mdLink"),
+            labelLinks = mdLinkPartPairs(md);
 
         return (
             copyTypedString(true)(
                 "public.utf8-plain-text"
             )(md),
+            copyTypedString(false)(
+                "com.hogbaysoftware.bike.xml"
+            )(
+                bikeLinksXML(labelLinks)
+            ),
             either(
                 alert("Copy as RTF Link")
             )(
@@ -35,7 +42,7 @@
             )(
                 rtfFromHTML(
                     styledLinks(linkStyle)(
-                        mdLinkPartPairs(md)
+                        labelLinks
                     )
                 )
             ),
@@ -45,6 +52,16 @@
 
 
     // ---------------------- LINKS ----------------------
+
+    const bikeLinksXML = labelLinks => {
+        const
+            ps = labelLinks.map(
+                ([k, url]) =>
+                    `<li><p><a href="${url}">${k}</a></p></li>`
+            ).join("\n");
+
+        return `<html><body><ul>${ps}</ul></body></html>`;
+    };
 
     // copyTypedString :: Bool -> String -> String -> IO ()
     const copyTypedString = blnClear =>
@@ -102,15 +119,15 @@
         const
             as = $.NSAttributedString.alloc
             .initWithHTMLDocumentAttributes($(strHTML)
-                .dataUsingEncoding($.NSUTF8StringEncoding),
-                0
+            .dataUsingEncoding($.NSUTF8StringEncoding),
+            0
             );
 
         return bindLR(
             "function" !== typeof as
             .dataFromRangeDocumentAttributesError ? (
-                Left("String could not be parsed as HTML")
-            ) : Right(as)
+                    Left("String could not be parsed as HTML")
+                ) : Right(as)
         )(
             // Function bound if Right value obtained above:
             htmlAS => {
@@ -118,25 +135,25 @@
                     error = $(),
                     rtfData = htmlAS
                     .dataFromRangeDocumentAttributesError({
-                            "location": 0,
-                            "length": htmlAS.length
-                        }, {
-                            DocumentType: "NSRTF"
-                        },
-                        error
+                        "location": 0,
+                        "length": htmlAS.length
+                    }, {
+                        DocumentType: "NSRTF"
+                    },
+                    error
                     );
 
                 return Boolean(
                     ObjC.unwrap(rtfData) && !error.code
                 ) ? Right(
-                    ObjC.unwrap($.NSString.alloc
+                        ObjC.unwrap($.NSString.alloc
                         .initWithDataEncoding(
                             rtfData,
                             $.NSUTF8StringEncoding
                         ))
-                ) : Left(ObjC.unwrap(
-                    error.localizedDescription
-                ));
+                    ) : Left(ObjC.unwrap(
+                        error.localizedDescription
+                    ));
             }
         );
     };
@@ -200,11 +217,20 @@
 
     // Tuple (,) :: a -> b -> (a, b)
     const Tuple = a =>
+    // A pair of values, possibly of
+    // different types.
         b => ({
             type: "Tuple",
             "0": a,
             "1": b,
-            length: 2
+            length: 2,
+            *[Symbol.iterator]() {
+                for (const k in this) {
+                    if (!isNaN(k)) {
+                        yield this[k];
+                    }
+                }
+            }
         });
 
     // biList :: (a, a) -> [a]
@@ -235,7 +261,6 @@
         0 < s.length ? (
             s.split(/[\r\n]+/u)
         ) : [];
-
 
     return main();
 })();
