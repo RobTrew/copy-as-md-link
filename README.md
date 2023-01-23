@@ -1,6 +1,8 @@
 # copy-as-md-link
 macOS Keyboard Maestro macro group – single keystroke to copy MD links from different applications.
 
+It also adds labelled links in `public.rtf` and to `com.hogbaysoftware.bike.xml` formats to the clipboard.
+
 See: `[Copy as Markdown Link]`(https://forum.keyboardmaestro.com/t/copy-as-markdown-link/20442) on the Keyboard Maestro forum.
 
 Application-specific sub-macros extending the main `Copy as Markdown Link` macro beyond the scope of browsers and document windows:
