@@ -20,6 +20,7 @@ Application-specific sub-macros extending the main `Copy as Markdown Link` macro
 - com.happenapps.Quiver
 - com.houdah.HoudahSpot-setapp
 - com.houdah.HoudahSpot4
+- com.kagi.kagimacOS
 - com.literatureandlatte.scrivener3
 - com.lukilabs.lukiapp
 - com.multimarkdown.nvUltra
