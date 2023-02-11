@@ -14,13 +14,14 @@ Application-specific sub-macros extending the main `Copy as Markdown Link` macro
 - com.apple.finder
 - com.apple.iCal
 - com.apple.mail
+- com.cocoatech.PathFinder
 - com.culturedcode.ThingsMac
 - com.devon-technologies.think3
 - com.flexibits.fantastical2.mac
 - com.happenapps.Quiver
+- com.hogbaysoftware.Bike
 - com.houdah.HoudahSpot-setapp
 - com.houdah.HoudahSpot4
-- com.kagi.kagimacOS
 - com.literatureandlatte.scrivener3
 - com.lukilabs.lukiapp
 - com.multimarkdown.nvUltra
