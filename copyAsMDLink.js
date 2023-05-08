@@ -4,7 +4,7 @@
     // Rob Trew @ 2020
 
     // Copy Markdown Link to front document, URL, or resource.
-    // Ver 0.30
+    // Ver 0.32
 
     // Switched to running app-specific macros by UUID
     // fetched from a JSON dictionary stored in a
@@ -51,43 +51,45 @@
 
     // linkForBundleLR :: String -> Either String String
     const linkForBundleLR = bundleID =>
-        // ------------ BROWSER ? ------------
+    // ------------ BROWSER ? ------------
 
         [
             "com.apple.Safari",
             "com.google.Chrome",
             "com.microsoft.edgemac",
-            "com.vivaldi.Vivaldi"
+            "com.vivaldi.Vivaldi",
+            "com.kagi.kagimacOS",
+            "com.operasoftware.Opera"
         ].includes(bundleID) ? (
-            browserLinkLR(bundleID)
-        ) : (() => {
+                browserLinkLR(bundleID)
+            ) : (() => {
             // ---- APP-SPECIFIC MACRO ? -----
-            const
-                kme = Application("Keyboard Maestro Engine"),
-                dctUUID = either(
-                    msg => (
+                const
+                    kme = Application("Keyboard Maestro Engine"),
+                    dctUUID = either(
+                        msg => (
                         // eslint-disable-next-line no-console
-                        console.log(
-                            "BundleID map had to be regenerated",
-                            msg
-                        ),
-                        // Regenerated UUID dictionary
-                        updatedUUIDMap()
-                    )
-                )(
+                            console.log(
+                                "BundleID map had to be regenerated",
+                                msg
+                            ),
+                            // Regenerated UUID dictionary
+                            updatedUUIDMap()
+                        )
+                    )(
                     // UUID dictionary from existing
                     // KM Variable
-                    dct => dct
-                )(
-                    jsonParseLR(
-                        kme.getvariable("uuidsForMDLink")
-                    )
-                );
+                        dct => dct
+                    )(
+                        jsonParseLR(
+                            kme.getvariable("uuidsForMDLink")
+                        )
+                    );
 
-            return linkFromUUID(kme)(bundleID)(
-                dctUUID[bundleID]
-            );
-        })();
+                return linkFromUUID(kme)(bundleID)(
+                    dctUUID[bundleID]
+                );
+            })();
 
     // linkFromUUID :: Application ->
     // String -> String -> String
@@ -193,35 +195,30 @@
 
     // browserLinkLR :: String -> Either String IO String
     const browserLinkLR = bundleID => {
-        const
-            app = Application(bundleID),
-            ws = app.windows;
+        const w = Application(bundleID).windows.at(0);
 
-        return bindLR(
-            0 < ws.length ? (
-                Right(ws.at(0))
-            ) : Left(`No windows open in ${bundleID}`)
-        )(
-            w => {
-                const tabs = w.tabs;
+        return w.exists()
+            ? w.tabs.at(0).exists() ? (() => {
+                const
+                    tab = w[
+                    [
+                        "com.apple.Safari",
+                        "com.kagi.kagimacOS"
+                    ]
+                    .includes(bundleID)
+                        ? "currentTab"
+                        : "activeTab"
+                    ]();
 
-                return 0 < tabs.length ? (() => {
-                    const
-                        tab = w[
-                            "com.apple.Safari" === bundleID ? (
-                                "currentTab"
-                            ) : "activeTab"
-                        ]();
-
-                    return Right(
-                        `[${tab.name()}](${tab.url()})`
-                    );
-                })() : Left(
-                    `No open tabs in front window of ${bundleID}`
+                return Right(
+                    `[${tab.name()}](${tab.url()})`
                 );
-            }
-        );
+            })() : Left(
+                `No open tabs in front window of ${bundleID}`
+            )
+            : Left(`No windows open in ${bundleID}`);
     };
+
 
     // ----------------------- JXA -----------------------
 
