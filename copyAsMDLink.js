@@ -4,7 +4,7 @@
     // Rob Trew @ 2020
 
     // Copy Markdown Link to front document, URL, or resource.
-    // Ver 0.32
+    // Ver 0.33
 
     // Switched to running app-specific macros by UUID
     // fetched from a JSON dictionary stored in a
@@ -40,11 +40,11 @@
             mdLink => mdLink
         )(
             bindLR(
-                void 0 !== bundleID ? (
-                    Right(bundleID)
-                ) : Left(
-                    "No active application detected"
-                )
+                void 0 !== bundleID
+                    ? Right(bundleID)
+                    : Left(
+                        "No active application detected"
+                    )
             )(linkForBundleLR)
         );
     };
@@ -59,10 +59,11 @@
             "com.microsoft.edgemac",
             "com.vivaldi.Vivaldi",
             "com.kagi.kagimacOS",
-            "com.operasoftware.Opera"
-        ].includes(bundleID) ? (
-                browserLinkLR(bundleID)
-            ) : (() => {
+            "com.operasoftware.Opera",
+            "company.thebrowser.Browser"
+        ].includes(bundleID)
+            ? browserLinkLR(bundleID)
+            : (() => {
             // ---- APP-SPECIFIC MACRO ? -----
                 const
                     kme = Application("Keyboard Maestro Engine"),
@@ -91,12 +92,11 @@
                 );
             })();
 
-            
     // linkFromUUID :: Application ->
     // String -> String -> String
     const linkFromUUID = kme =>
-        bundleID => maybeUUID => Boolean(maybeUUID) ? (
-            either(
+        bundleID => maybeUUID => Boolean(maybeUUID)
+            ? either(
                 // If the UUID wasn"t found,
                 // then run a new one from an
                 // updated dictionary.
@@ -119,7 +119,7 @@
                 // Run macro with this UUID if possible.
                 doScriptLR(kme)(maybeUUID)
             )
-        ) : appFrontWindowMDLinkLR(bundleID);
+            : appFrontWindowMDLinkLR(bundleID);
 
 
     // doScriptLR :: UUID -> Either String String
@@ -162,32 +162,32 @@
                 dictUUIDs
             )
         )(
-            0 < mdLinkToolsGroups.length ? (() => {
-                const
-                    instances = mdLinkToolsGroups.at(0)
-                    .macros()
-                    .flatMap(macro => {
-                        const k = macro.name();
+            0 < mdLinkToolsGroups.length
+                ? (() => {
+                    const
+                        instances = mdLinkToolsGroups.at(0)
+                        .macros()
+                        .flatMap(macro => {
+                            const k = macro.name();
 
-                        return k.includes(".") ? (
-                            [
-                                [k, macro.id()]
-                            ]
-                        ) : [];
-                    });
+                            return k.includes(".")
+                                ? [[k, macro.id()]]
+                                : [];
+                        });
 
-                return Right(
-                    instances.reduce(
-                        (a, [bundle, uuid]) => Object.assign(
-                            a, {
-                                [bundle]: uuid
-                            }
-                        ), {}
-                    )
-                );
-            })() : Left(
-                `Macro group not found:\n\n\t${macroGroupName}`
-            )
+                    return Right(
+                        instances.reduce(
+                            (a, [bundle, uuid]) => Object.assign(
+                                a, {
+                                    [bundle]: uuid
+                                }
+                            ), {}
+                        )
+                    );
+                })()
+                : Left(
+                    `Macro group not found:\n\n\t${macroGroupName}`
+                )
         );
     };
 
@@ -198,26 +198,36 @@
     const browserLinkLR = bundleID => {
         const w = Application(bundleID).windows.at(0);
 
-        return w.exists()
-            ? w.tabs.at(0).exists() ? (() => {
-                const
-                    tab = w[
-                    [
-                        "com.apple.Safari",
-                        "com.kagi.kagimacOS"
-                    ]
-                    .includes(bundleID)
-                        ? "currentTab"
-                        : "activeTab"
-                    ]();
+        return "company.thebrowser.Browser" !== bundleID
+            ? w.exists()
+                ? w.tabs.at(0).exists()
+                    ? (() => {
+                        const
+                            tab = w[
+                            [
+                                "com.apple.Safari",
+                                "com.kagi.kagimacOS"
+                            ]
+                            .includes(bundleID)
+                                ? "currentTab"
+                                : "activeTab"
+                            ]();
 
-                return Right(
-                    `[${tab.name()}](${tab.url()})`
-                );
-            })() : Left(
-                `No open tabs in front window of ${bundleID}`
-            )
-            : Left(`No windows open in ${bundleID}`);
+                        return Right(
+                            `[${tab.name()}](${tab.url()})`
+                        );
+                    })()
+                    : Left(
+                        `No open tabs in front window of ${bundleID}`
+                    )
+                : Left(`No windows open in ${bundleID}`)
+            : Right(
+                (() => {
+                    const tab = w.activeTab;
+
+                    return `[${tab.title()}](${tab.url()})`;
+                })()
+            );
     };
 
 
@@ -247,12 +257,12 @@
 
         return bindLR(
             bindLR(
-                procs.length > 0 ? (
-                    Right(procs.at(0).windows)
-                ) : Left(`Application not found: ${bundleID}`)
-            )(ws => ws.length > 0 ? (
-                Right(ws.at(0))
-            ) : Left(`No windows found for ${bundleID}`))
+                procs.length > 0
+                    ? Right(procs.at(0).windows)
+                    : Left(`Application not found: ${bundleID}`)
+            )(ws => ws.length > 0
+                ? Right(ws.at(0))
+                : Left(`No windows found for ${bundleID}`))
         )(w => {
             const
                 uw = ObjC.unwrap,
@@ -263,20 +273,20 @@
                     w.attributes.byName(appID).value()
                 ));
 
-            return Boolean(maybeDocURL) ? (
-                Right(`[${winTitle}](${maybeDocURL})`)
-            ) : Left(
-                [
-                    `Window "${winTitle}" of:\n\n\t${bundleID}`,
-                    "\nmay not be a document window.",
-                    `\nConsider adding a macro named "${bundleID}"`,
-                    `to the KM Group "${kmGroupName}".`,
-                    "\n(Or request such a macro, which should",
-                    "save a [label](url) string) in the",
-                    "KM variable \"mdLink\")",
-                    "on the Keyboard Maestro forum)."
-                ].join("\n")
-            );
+            return Boolean(maybeDocURL)
+                ? Right(`[${winTitle}](${maybeDocURL})`)
+                : Left(
+                    [
+                        `Window "${winTitle}" of:\n\n\t${bundleID}`,
+                        "\nmay not be a document window.",
+                        `\nConsider adding a macro named "${bundleID}"`,
+                        `to the KM Group "${kmGroupName}".`,
+                        "\n(Or request such a macro, which should",
+                        "save a [label](url) string) in the",
+                        "KM variable \"mdLink\")",
+                        "on the Keyboard Maestro forum)."
+                    ].join("\n")
+                );
         });
     };
 
@@ -320,9 +330,9 @@
     // bindLR (>>=) :: Either a ->
     // (a -> Either b) -> Either b
     const bindLR = m =>
-        mf => undefined !== m.Left ? (
-            m
-        ) : mf(m.Right);
+        mf => undefined !== m.Left
+            ? m
+            : mf(m.Right);
 
 
     // either :: (a -> c) -> (b -> c) -> Either a b -> c
@@ -330,11 +340,9 @@
         // Application of the function fl to the
         // contents of any Left value in e, or
         // the application of fr to its Right value.
-        fr => e => "Either" === e.type ? (
-            undefined !== e.Left ? (
-                fl(e.Left)
-            ) : fr(e.Right)
-        ) : undefined;
+        fr => e => "Left" in e
+            ? fl(e.Left)
+            : fr(e.Right);
 
 
     // jsonParseLR :: String -> Either String a
@@ -349,6 +357,15 @@
             );
         }
     };
+
+    // showLog :: a -> IO ()
+    const showLog = (...args) =>
+    // eslint-disable-next-line no-console
+        console.log(
+            args
+            .map(JSON.stringify)
+            .join(" -> ")
+        );
 
     // MAIN ---
     return main();
