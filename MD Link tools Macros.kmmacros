@@ -7626,17 +7626,21 @@ e("No windows open in Nova."))(function(c){var m=c.lists;return 0&lt;c.lists.len
 
     const
         devon = Application("DEVONthink 3"),
-        thinkWinTab = devon.thinkWindows.at(0).currentTab;
+        tab = devon.thinkWindows.at(0).currentTab,
+        contentRecord = tab.contentRecord,
+        [name, ref] = contentRecord.exists()
+            ? [contentRecord, tab]
+            : (() =&gt; {
+                const
+                    selectedRecords = devon.selectedRecords,
+                    record = 1 === selectedRecords.length
+                        ? selectedRecords.at(0)
+                        : devon.viewerWindows.at(0).root;
 
-    return thinkWinTab.contentRecord.exists()
-        ? thinkWinTab.referenceURL()
-        : (() =&gt; {
-            const selectedRecords = devon.selectedRecords;
+                return [record, record];
+            })();
 
-            return 1 === selectedRecords.length
-                ? selectedRecords.at(0).referenceURL()
-                : devon.viewerWindows.at(0).root.referenceURL();
-        })();
+    return `[${name.name()}](${ref.referenceURL()})`;
 })();</string>
 						<key>TimeOutAbortsMacro</key>
 						<true/>
@@ -7655,7 +7659,7 @@ e("No windows open in Nova."))(function(c){var m=c.lists;return 0&lt;c.lists.len
 				<key>CreationDate</key>
 				<real>620239734.951316</real>
 				<key>ModificationDate</key>
-				<real>734217861.16878998</real>
+				<real>734221570.93161905</real>
 				<key>Name</key>
 				<string>com.devon-technologies.think3</string>
 				<key>Triggers</key>
