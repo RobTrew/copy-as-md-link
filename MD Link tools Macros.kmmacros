@@ -872,46 +872,6 @@
 		<array>
 			<dict>
 				<key>Actions</key>
-				<array/>
-				<key>CreationDate</key>
-				<real>740852857.55715895</real>
-				<key>ModificationDate</key>
-				<real>740852885.33202803</real>
-				<key>Name</key>
-				<string>Activate application by bundleID</string>
-				<key>Triggers</key>
-				<array>
-					<dict>
-						<key>MacroTriggerType</key>
-						<string>Subroutine</string>
-						<key>Parameters</key>
-						<array>
-							<string>Local Parameter Name</string>
-						</array>
-						<key>ReturnsValue</key>
-						<true/>
-					</dict>
-				</array>
-				<key>UID</key>
-				<string>996F5581-DD57-4E21-B256-43688895A131</string>
-			</dict>
-		</array>
-		<key>Name</key>
-		<string>MD Link tools</string>
-		<key>ToggleMacroUID</key>
-		<string>EF4C10A0-F061-48D9-A676-4E31D5359C50</string>
-		<key>UID</key>
-		<string>1C0A5328-B9EF-45FC-B4D3-4DF3806E5B9B</string>
-	</dict>
-	<dict>
-		<key>Activate</key>
-		<string>Normal</string>
-		<key>CreationDate</key>
-		<real>620208716.32096696</real>
-		<key>Macros</key>
-		<array>
-			<dict>
-				<key>Actions</key>
 				<array>
 					<dict>
 						<key>ActionUID</key>
