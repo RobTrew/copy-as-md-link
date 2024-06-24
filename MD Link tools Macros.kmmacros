@@ -14,6 +14,219 @@
 				<array>
 					<dict>
 						<key>ActionUID</key>
+						<integer>15993919</integer>
+						<key>DisplayKind</key>
+						<string>Variable</string>
+						<key>HonourFailureSettings</key>
+						<true/>
+						<key>IncludeStdErr</key>
+						<false/>
+						<key>IncludedVariables</key>
+						<array>
+							<string>9999</string>
+						</array>
+						<key>MacroActionType</key>
+						<string>ExecuteJavaScriptForAutomation</string>
+						<key>Path</key>
+						<string></string>
+						<key>Text</key>
+						<string>return (() =&gt; {
+    "use strict";
+
+    // Rob Trew @2020, @2024
+
+    // main :: IO ()
+    const main = () =&gt; {
+        const
+            version = kmvar.local_BundleId,
+            op = Application(version),
+            wins = op.windows;
+
+        return either(
+            // A user message,
+            alert("MD link")
+        )(
+            // or a Markdown link.
+            x =&gt; x
+        )(
+            bindLR(
+                0 &lt; wins.length
+                    ? Right(wins.at(0))
+                    : Left(`No documents open in ${version}.`)
+            )(
+                window =&gt; {
+                    const
+                        doc = window.document,
+                        fp = Path(doc.file()).toString(),
+                        selns = window.selectedTasks();
+
+                    return Right(
+                        0 &lt; selns.length
+                            ? taskMDLink(fp)(selns)
+                            : fileMDLink(doc)(fp)
+                    );
+                }
+            )
+        );
+    };
+
+    // taskMDLink :: FilePath -&gt; OP Selections -&gt; String
+    const taskMDLink = fp =&gt;
+        selns =&gt; {
+            const
+                opURL = encodeURI(`omniplan://localhost${fp}`),
+                taskNames = selns.map(x =&gt; x.name())
+                .join(","),
+                taskIds = selns.map(x =&gt; x.id())
+                .join(",%2520");
+
+            return `[${taskNames}](${opURL}/task/${taskIds})`;
+        };
+
+    // fileMDLink :: Document -&gt; FilePath -&gt; String
+    const fileMDLink = doc =&gt;
+        fp =&gt; {
+            const fileURL = encodeURI(`file://${fp}`);
+
+            return `[${doc.name()}](${fileURL})`;
+        };
+
+    // ----------------------- JXA -----------------------
+
+    // alert :: String =&gt; String -&gt; IO String
+    const alert = title =&gt;
+        s =&gt; {
+            const sa = Object.assign(
+                Application("System Events"), {
+                    includeStandardAdditions: true
+                });
+
+
+            return (
+                sa.activate(),
+                sa.displayDialog(s, {
+                    withTitle: title,
+                    buttons: ["OK"],
+                    defaultButton: "OK"
+                }),
+                s
+            );
+        };
+
+    // --------------------- GENERIC ---------------------
+    // Left :: a -&gt; Either a b
+    const Left = x =&gt; ({
+        type: "Either",
+        Left: x
+    });
+
+
+    // Right :: b -&gt; Either a b
+    const Right = x =&gt; ({
+        type: "Either",
+        Right: x
+    });
+
+
+    // bindLR (&gt;&gt;=) :: Either a -&gt;
+    // (a -&gt; Either b) -&gt; Either b
+    const bindLR = lr =&gt;
+        // Bind operator for the Either option type.
+        // If lr has a Left value then lr unchanged,
+        // otherwise the function mf applied to the
+        // Right value in lr.
+        mf =&gt; "Left" in lr
+            ? lr
+            : mf(lr.Right);
+
+
+    // either :: (a -&gt; c) -&gt; (b -&gt; c) -&gt; Either a b -&gt; c
+    const either = fl =&gt;
+        // Application of the function fl to the
+        // contents of any Left value in e, or
+        // the application of fr to its Right value.
+        fr =&gt; e =&gt; "Left" in e
+            ? fl(e.Left)
+            : fr(e.Right);
+
+    // last :: [a] -&gt; a
+    const last = xs =&gt; {
+    // The last item of a list.
+        const n = xs.length;
+
+        return 0 &lt; n
+            ? xs[n - 1]
+            : null;
+    };
+
+    // showLog :: a -&gt; IO ()
+    const showLog = (...args) =&gt;
+    // eslint-disable-next-line no-console
+        console.log(
+            args
+            .map(JSON.stringify)
+            .join(" -&gt; ")
+        );
+
+
+    return main();
+})();</string>
+						<key>TimeOutAbortsMacro</key>
+						<true/>
+						<key>TrimResults</key>
+						<true/>
+						<key>TrimResultsNew</key>
+						<true/>
+						<key>UseModernSyntax</key>
+						<true/>
+						<key>UseText</key>
+						<true/>
+						<key>Variable</key>
+						<string>mdLink</string>
+					</dict>
+				</array>
+				<key>CreationDate</key>
+				<real>740911379.07701302</real>
+				<key>ModificationDate</key>
+				<real>740911877.61385</real>
+				<key>Name</key>
+				<string>Omniplan variant</string>
+				<key>Triggers</key>
+				<array>
+					<dict>
+						<key>MacroTriggerType</key>
+						<string>Subroutine</string>
+						<key>Parameters</key>
+						<array>
+							<string>local_BundleId</string>
+						</array>
+						<key>ReturnsValue</key>
+						<false/>
+					</dict>
+				</array>
+				<key>UID</key>
+				<string>6549F36A-ACCE-42FC-B8A9-BE4E2931B8CE</string>
+			</dict>
+		</array>
+		<key>Name</key>
+		<string>MD Link tools</string>
+		<key>ToggleMacroUID</key>
+		<string>EF4C10A0-F061-48D9-A676-4E31D5359C50</string>
+		<key>UID</key>
+		<string>1C0A5328-B9EF-45FC-B4D3-4DF3806E5B9B</string>
+	</dict>
+	<dict>
+		<key>Activate</key>
+		<string>Normal</string>
+		<key>CreationDate</key>
+		<real>620208716.32096696</real>
+		<key>Macros</key>
+		<array>
+			<dict>
+				<key>Actions</key>
+				<array>
+					<dict>
+						<key>ActionUID</key>
 						<integer>15977514</integer>
 						<key>DisplayKind</key>
 						<string>Variable</string>
@@ -6908,156 +7121,25 @@
 				<array>
 					<dict>
 						<key>ActionUID</key>
-						<integer>378</integer>
-						<key>DisplayKind</key>
-						<string>Variable</string>
-						<key>HonourFailureSettings</key>
-						<true/>
-						<key>IncludeStdErr</key>
-						<false/>
-						<key>IncludedVariables</key>
-						<array>
-							<string>9999</string>
-						</array>
+						<integer>15994225</integer>
 						<key>MacroActionType</key>
-						<string>ExecuteJavaScriptForAutomation</string>
-						<key>Path</key>
-						<string></string>
-						<key>Text</key>
-						<string>(() =&gt; {
-    'use strict';
-
-    // Rob Trew @2020
-
-    // main :: IO ()
-    const main = () =&gt; {
-        const
-            op = Application('OmniPlan'),
-            wins = op.windows,
-            version = last(op.id());
-
-        return either(
-            // A user message,
-            alert('MD link')
-        )(
-            // or a Markdown link.
-            x =&gt; x
-        )(
-            bindLR(
-                0 &lt; wins.length ? (
-                    Right(wins.at(0))
-                ) : Left(
-                    `No documents open in OmniPlan ${version}.`
-                )
-            )(window =&gt; {
-                const
-                    doc = window.document,
-                    fp = Path(doc.file()).toString(),
-                    opURL = encodeURI(`omniplan://localhost${fp}`),
-                    fileURL = encodeURI('file://' + fp),
-                    selns = window.selectedTasks(),
-                    taskNames = selns.map(x =&gt; x.name())
-                    .join(','),
-                    taskIds = selns.map(x =&gt; x.id())
-                    .join(',%2520');
-                return Right(
-                    0 &lt; selns.length ? (
-                        `[${taskNames}](${opURL}/task/${taskIds})`
-                    ) : `[${doc.name()}](${fileURL})`
-                );
-            })
-        );
-    };
-
-    // ----------------------- JXA -----------------------
-
-    // alert :: String =&gt; String -&gt; IO String
-    const alert = title =&gt;
-        s =&gt; {
-            const sa = Object.assign(
-                Application('System Events'), {
-                    includeStandardAdditions: true
-                });
-            return (
-                sa.activate(),
-                sa.displayDialog(s, {
-                    withTitle: title,
-                    buttons: ['OK'],
-                    defaultButton: 'OK'
-                }),
-                s
-            );
-        };
-
-    // --------------------- GENERIC ---------------------
-
-    // Left :: a -&gt; Either a b
-    const Left = x =&gt; ({
-        type: 'Either',
-        Left: x
-    });
-
-    // Right :: b -&gt; Either a b
-    const Right = x =&gt; ({
-        type: 'Either',
-        Right: x
-    });
-
-    // bindLR (&gt;&gt;=) :: Either a -&gt; 
-    // (a -&gt; Either b) -&gt; Either b
-    const bindLR = m =&gt;
-        mf =&gt; undefined !== m.Left ? (
-            m
-        ) : mf(m.Right);
-
-    // either :: (a -&gt; c) -&gt; (b -&gt; c) -&gt; Either a b -&gt; c
-    const either = fl =&gt;
-        // Application of the function fl to the
-        // contents of any Left value in e, or
-        // the application of fr to its Right value.
-        fr =&gt; e =&gt; 'Either' === e.type ? (
-            undefined !== e.Left ? (
-                fl(e.Left)
-            ) : fr(e.Right)
-        ) : undefined;
-
-    // last :: [a] -&gt; a
-    const last = xs =&gt; (
-        // The last item of a list.
-        ys =&gt; 0 &lt; ys.length ? (
-            ys.slice(-1)[0]
-        ) : undefined
-    )(list(xs));
-
-    // list :: StringOrArrayLike b =&gt; b -&gt; [a]
-    const list = xs =&gt;
-        // xs itself, if it is an Array,
-        // or an Array derived from xs.
-        Array.isArray(xs) ? (
-            xs
-        ) : Array.from(xs || []);
-
-    return main();
-})();
-</string>
+						<string>ExecuteSubroutine</string>
+						<key>MacroUID</key>
+						<string>6549F36A-ACCE-42FC-B8A9-BE4E2931B8CE</string>
+						<key>Parameters</key>
+						<array>
+							<string>com.omnigroup.OmniPlan3</string>
+						</array>
+						<key>ResultVariable</key>
+						<string>VarName</string>
 						<key>TimeOutAbortsMacro</key>
 						<true/>
-						<key>TrimResults</key>
-						<true/>
-						<key>TrimResultsNew</key>
-						<true/>
-						<key>UseModernSyntax</key>
-						<false/>
-						<key>UseText</key>
-						<true/>
-						<key>Variable</key>
-						<string>mdLink</string>
 					</dict>
 				</array>
 				<key>CreationDate</key>
 				<real>629071910.84008896</real>
 				<key>ModificationDate</key>
-				<real>634818508.62129796</real>
+				<real>740911553.70155895</real>
 				<key>Name</key>
 				<string>com.omnigroup.OmniPlan3</string>
 				<key>Triggers</key>
@@ -9213,156 +9295,25 @@
 				<array>
 					<dict>
 						<key>ActionUID</key>
-						<integer>377</integer>
-						<key>DisplayKind</key>
-						<string>Variable</string>
-						<key>HonourFailureSettings</key>
-						<true/>
-						<key>IncludeStdErr</key>
-						<false/>
-						<key>IncludedVariables</key>
-						<array>
-							<string>9999</string>
-						</array>
+						<integer>15993996</integer>
 						<key>MacroActionType</key>
-						<string>ExecuteJavaScriptForAutomation</string>
-						<key>Path</key>
-						<string></string>
-						<key>Text</key>
-						<string>(() =&gt; {
-    'use strict';
-
-    // Rob Trew @2020
-
-    // main :: IO ()
-    const main = () =&gt; {
-        const
-            op = Application('OmniPlan'),
-            wins = op.windows,
-            version = last(op.id());
-
-        return either(
-            // A user message,
-            alert('MD link')
-        )(
-            // or a Markdown link.
-            x =&gt; x
-        )(
-            bindLR(
-                0 &lt; wins.length ? (
-                    Right(wins.at(0))
-                ) : Left(
-                    `No documents open in OmniPlan ${version}.`
-                )
-            )(window =&gt; {
-                const
-                    doc = window.document,
-                    fp = Path(doc.file()).toString(),
-                    opURL = encodeURI(`omniplan://localhost${fp}`),
-                    fileURL = encodeURI('file://' + fp),
-                    selns = window.selectedTasks(),
-                    taskNames = selns.map(x =&gt; x.name())
-                    .join(','),
-                    taskIds = selns.map(x =&gt; x.id())
-                    .join(',%2520');
-                return Right(
-                    0 &lt; selns.length ? (
-                        `[${taskNames}](${opURL}/task/${taskIds})`
-                    ) : `[${doc.name()}](${fileURL})`
-                );
-            })
-        );
-    };
-
-    // ----------------------- JXA -----------------------
-
-    // alert :: String =&gt; String -&gt; IO String
-    const alert = title =&gt;
-        s =&gt; {
-            const sa = Object.assign(
-                Application('System Events'), {
-                    includeStandardAdditions: true
-                });
-            return (
-                sa.activate(),
-                sa.displayDialog(s, {
-                    withTitle: title,
-                    buttons: ['OK'],
-                    defaultButton: 'OK'
-                }),
-                s
-            );
-        };
-
-    // --------------------- GENERIC ---------------------
-
-    // Left :: a -&gt; Either a b
-    const Left = x =&gt; ({
-        type: 'Either',
-        Left: x
-    });
-
-    // Right :: b -&gt; Either a b
-    const Right = x =&gt; ({
-        type: 'Either',
-        Right: x
-    });
-
-    // bindLR (&gt;&gt;=) :: Either a -&gt; 
-    // (a -&gt; Either b) -&gt; Either b
-    const bindLR = m =&gt;
-        mf =&gt; undefined !== m.Left ? (
-            m
-        ) : mf(m.Right);
-
-    // either :: (a -&gt; c) -&gt; (b -&gt; c) -&gt; Either a b -&gt; c
-    const either = fl =&gt;
-        // Application of the function fl to the
-        // contents of any Left value in e, or
-        // the application of fr to its Right value.
-        fr =&gt; e =&gt; 'Either' === e.type ? (
-            undefined !== e.Left ? (
-                fl(e.Left)
-            ) : fr(e.Right)
-        ) : undefined;
-
-    // last :: [a] -&gt; a
-    const last = xs =&gt; (
-        // The last item of a list.
-        ys =&gt; 0 &lt; ys.length ? (
-            ys.slice(-1)[0]
-        ) : undefined
-    )(list(xs));
-
-    // list :: StringOrArrayLike b =&gt; b -&gt; [a]
-    const list = xs =&gt;
-        // xs itself, if it is an Array,
-        // or an Array derived from xs.
-        Array.isArray(xs) ? (
-            xs
-        ) : Array.from(xs || []);
-
-    return main();
-})();
-</string>
+						<string>ExecuteSubroutine</string>
+						<key>MacroUID</key>
+						<string>6549F36A-ACCE-42FC-B8A9-BE4E2931B8CE</string>
+						<key>Parameters</key>
+						<array>
+							<string>com.omnigroup.OmniPlan4</string>
+						</array>
+						<key>ResultVariable</key>
+						<string>VarName</string>
 						<key>TimeOutAbortsMacro</key>
 						<true/>
-						<key>TrimResults</key>
-						<true/>
-						<key>TrimResultsNew</key>
-						<true/>
-						<key>UseModernSyntax</key>
-						<false/>
-						<key>UseText</key>
-						<true/>
-						<key>Variable</key>
-						<string>mdLink</string>
 					</dict>
 				</array>
 				<key>CreationDate</key>
 				<real>629071556.148844</real>
 				<key>ModificationDate</key>
-				<real>634818512.08012104</real>
+				<real>740911536.30203795</real>
 				<key>Name</key>
 				<string>com.omnigroup.OmniPlan4</string>
 				<key>Triggers</key>
