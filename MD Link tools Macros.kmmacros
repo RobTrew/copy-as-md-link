@@ -23,7 +23,7 @@
 						<false/>
 						<key>IncludedVariables</key>
 						<array>
-							<string>9999</string>
+							<string>local_BundleId</string>
 						</array>
 						<key>MacroActionType</key>
 						<string>ExecuteJavaScriptForAutomation</string>
@@ -49,26 +49,28 @@
             // or a Markdown link.
             x =&gt; x
         )(
-            bindLR(
+            fmapLR(
+                linkForWindow
+            )(
                 0 &lt; wins.length
                     ? Right(wins.at(0))
                     : Left(`No documents open in ${version}.`)
-            )(
-                window =&gt; {
-                    const
-                        doc = window.document,
-                        fp = Path(doc.file()).toString(),
-                        selns = window.selectedTasks();
-
-                    return Right(
-                        0 &lt; selns.length
-                            ? taskMDLink(fp)(selns)
-                            : fileMDLink(doc)(fp)
-                    );
-                }
             )
         );
     };
+
+    // linkForWindow :: Window -&gt; String
+    const linkForWindow = window =&gt; {
+        const
+            selns = window.selectedTasks(),
+            doc = window.document,
+            fp = Path(doc.file()).toString();
+
+        return 0 &lt; selns.length
+            ? taskMDLink(fp)(selns)
+            : fileMDLink(doc)(fp);
+    };
+
 
     // taskMDLink :: FilePath -&gt; OP Selections -&gt; String
     const taskMDLink = fp =&gt;
@@ -83,6 +85,7 @@
             return `[${taskNames}](${opURL}/task/${taskIds})`;
         };
 
+
     // fileMDLink :: Document -&gt; FilePath -&gt; String
     const fileMDLink = doc =&gt;
         fp =&gt; {
@@ -90,6 +93,7 @@
 
             return `[${doc.name()}](${fileURL})`;
         };
+
 
     // ----------------------- JXA -----------------------
 
@@ -100,7 +104,6 @@
                 Application("System Events"), {
                     includeStandardAdditions: true
                 });
-
 
             return (
                 sa.activate(),
@@ -128,18 +131,6 @@
     });
 
 
-    // bindLR (&gt;&gt;=) :: Either a -&gt;
-    // (a -&gt; Either b) -&gt; Either b
-    const bindLR = lr =&gt;
-        // Bind operator for the Either option type.
-        // If lr has a Left value then lr unchanged,
-        // otherwise the function mf applied to the
-        // Right value in lr.
-        mf =&gt; "Left" in lr
-            ? lr
-            : mf(lr.Right);
-
-
     // either :: (a -&gt; c) -&gt; (b -&gt; c) -&gt; Either a b -&gt; c
     const either = fl =&gt;
         // Application of the function fl to the
@@ -149,26 +140,16 @@
             ? fl(e.Left)
             : fr(e.Right);
 
-    // last :: [a] -&gt; a
-    const last = xs =&gt; {
-    // The last item of a list.
-        const n = xs.length;
 
-        return 0 &lt; n
-            ? xs[n - 1]
-            : null;
-    };
+    // fmapLR (&lt;$&gt;) :: (b -&gt; c) -&gt; Either a b -&gt; Either a c
+    const fmapLR = f =&gt;
+    // Either f mapped into the contents of any Right
+    // value in e, or e unchanged if is a Left value.
+        e =&gt; "Left" in e
+            ? e
+            : Right(f(e.Right));
 
-    // showLog :: a -&gt; IO ()
-    const showLog = (...args) =&gt;
-    // eslint-disable-next-line no-console
-        console.log(
-            args
-            .map(JSON.stringify)
-            .join(" -&gt; ")
-        );
-
-
+    // MAIN ---
     return main();
 })();</string>
 						<key>TimeOutAbortsMacro</key>
@@ -188,7 +169,7 @@
 				<key>CreationDate</key>
 				<real>740911379.07701302</real>
 				<key>ModificationDate</key>
-				<real>740911877.61385</real>
+				<real>740912834.35791695</real>
 				<key>Name</key>
 				<string>Omniplan variant</string>
 				<key>Triggers</key>
