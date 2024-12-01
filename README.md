@@ -7,6 +7,7 @@ See: `[Copy as Markdown Link]`(https://forum.keyboardmaestro.com/t/copy-as-markd
 
 Application-specific sub-macros extending the main `Copy as Markdown Link` macro beyond the scope of browsers and document windows:
 
+- app.soulver.appstore.mac
 - app.soulver.mac
 - com.agiletortoise.Drafts-OSX
 - com.amazon.Kindle
@@ -14,6 +15,8 @@ Application-specific sub-macros extending the main `Copy as Markdown Link` macro
 - com.apple.finder
 - com.apple.iCal
 - com.apple.mail
+- com.apple.Notes
+- com.binarynights.ForkLift
 - com.cocoatech.PathFinder
 - com.culturedcode.ThingsMac
 - com.devon-technologies.think3
@@ -25,9 +28,12 @@ Application-specific sub-macros extending the main `Copy as Markdown Link` macro
 - com.literatureandlatte.scrivener3
 - com.lukilabs.lukiapp
 - com.multimarkdown.nvUltra
+- com.ngocluu.goodlinks
 - com.OakTree.Accordance
 - com.omnigroup.OmniFocus3
 - com.omnigroup.OmniFocus3.MacAppStore
+- com.omnigroup.OmniFocus4
+- com.omnigroup.OmniFocus4.MacAppStore
 - com.omnigroup.OmniOutliner5
 - com.omnigroup.OmniPlan3
 - com.omnigroup.OmniPlan4
