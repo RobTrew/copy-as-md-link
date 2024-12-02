@@ -12298,7 +12298,7 @@ e("No windows open in Nova."))(function(c){var m=c.lists;return 0&lt;c.lists.len
 
     // MD Link(s) from com.apple.notes selection(s)
     // Rob Trew @2024
-    // Ver 0.2
+    // Ver 0.1
 
     // ---------------------- MAIN -----------------------
     const main = () =&gt; {
@@ -12330,7 +12330,8 @@ e("No windows open in Nova."))(function(c){var m=c.lists;return 0&lt;c.lists.len
                                 "|| ')'"
                             ]),
                             "FROM ZICCLOUDSYNCINGOBJECT",
-                            `WHERE Z_PK IN (${pks.join(",")})`
+                            "WHERE Z_PK IN",
+                            `(${pks.join(",")})`
                         ])
                     )
                     : Left("Nothing selected in Notes.")
@@ -12545,7 +12546,7 @@ e("No windows open in Nova."))(function(c){var m=c.lists;return 0&lt;c.lists.len
 				<key>CreationDate</key>
 				<real>754777737.43829</real>
 				<key>ModificationDate</key>
-				<real>754821586.57984304</real>
+				<real>754821834.35151899</real>
 				<key>Name</key>
 				<string>com.apple.Notes</string>
 				<key>Triggers</key>
