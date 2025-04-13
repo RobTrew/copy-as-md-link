@@ -19,6 +19,7 @@ Application-specific sub-macros extending the main `Copy as Markdown Link` macro
 - com.binarynights.ForkLift
 - com.cocoatech.PathFinder
 - com.culturedcode.ThingsMac
+- com.devon-technologies.think
 - com.devon-technologies.think3
 - com.flexibits.fantastical2.mac
 - com.happenapps.Quiver
