@@ -28,6 +28,7 @@ Application-specific sub-macros extending the main `Copy as Markdown Link` macro
 - com.houdah.HoudahSpot4
 - com.literatureandlatte.scrivener3
 - com.lukilabs.lukiapp
+- com.microsoft.VSCode
 - com.multimarkdown.nvUltra
 - com.ngocluu.goodlinks
 - com.OakTree.Accordance
